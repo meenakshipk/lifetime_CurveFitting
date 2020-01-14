@@ -6,8 +6,10 @@
 package lifetime_curvefitting;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
+import ij.io.FileSaver;
 import ij.measure.CurveFitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
@@ -21,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import javax.swing.JFileChooser;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -68,11 +72,11 @@ public class lifetime extends javax.swing.JFrame {
 
         jLabel1.setText("Image resolution:");
 
-        jTextFieldXRes.setText("1024");
+        jTextFieldXRes.setText("28");
 
         jLabel2.setText("by");
 
-        jTextFieldYRes.setText("1024");
+        jTextFieldYRes.setText("24");
 
         jLabel3.setText("Repetition rate of laser:");
 
@@ -100,7 +104,7 @@ public class lifetime extends javax.swing.JFrame {
 
         jLabel7.setText("No. of files/data points:");
 
-        jTextFieldTimePoints.setText("25");
+        jTextFieldTimePoints.setText("14");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -243,7 +247,7 @@ public class lifetime extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonUploadFileActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        System.out.println("START - Timestamp: " + System.currentTimeMillis());
 
         int dataPoints = Integer.parseInt(jTextFieldTimePoints.getText());
         int xRes = Integer.parseInt(jTextFieldXRes.getText());
@@ -255,80 +259,209 @@ public class lifetime extends javax.swing.JFrame {
         Fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         Fc.showOpenDialog(this);
         File[] dataFiles = Fc.getSelectedFiles();
+        File dir = Fc.getSelectedFile();
 
-        //read pixel intensity values and store in an arraylist
-        ArrayList<float[][]> yDataArrayList = new ArrayList<>();
-        for (File dataFile : dataFiles) {
-            ImagePlus ip = new ImagePlus(dataFile.getAbsolutePath());
-            ImageProcessor processor = ip.getProcessor();
-            float[][] floatArray = processor.getFloatArray();
-            yDataArrayList.add(floatArray);
+        if (dataPoints != dataFiles.length) {
+            System.out.println("Error! No. of files selected does not match no. of dataPoints");
+            dataFiles = null;
+            return;
         }
 
-        //fitting
         //create xdata
 //        double[] xdata = new double[dataPoints];
-        double[] xdata = {0,
-            33.33333,
-            66.66667,
-            100,
-            133.33333,
-            166.66667,
-            200,
-            233.33333,
-            266.66667,
-            300,
-            333.33333,
-            400,
-            466.66667,
-            533.33333,
-            600,
-            666.66667,
-            800,
-            933.33333,
-            1066.66667,
-            1200,
-            1333.33333,
-            1666.66667,
-            2000,
-            2666.66667,
-            3333.33333};
+//14 dp
+double[] xdata = {
+                171.6,
+                204.6,
+                270.6,
+                336.6,
+                402.6,
+                435.6,
+                468.6,
+                534.6,
+                600.6,
+                732.6,
+                798.6,
+                1046.1,
+                1293.6,
+                1788.6
+            };
+        
+
+//        //27dp
+//        double[] xdata = {
+//            0,
+//            33.33333,
+//            66.66667,
+//            100,
+//            133.33333,
+//            166.66667,
+//            200,
+//            233.33333,
+//            266.66667,
+//            300,
+//            333.33333,
+//            400,
+//            466.66667,
+//            533.33333,
+//            600,
+//            666.66667,
+//            800,
+//            933.33333,
+//            1066.66667,
+//            1200,
+//            1333.33333,
+//            1666.66667,
+//            2000,
+//            2333.33333,
+//            2666.66667,
+//            3000,
+//            3333.33333
+//        };
+
+        //create image stack out of selected files
+        ImageStack imgStack = new ImageStack(xRes, yRes);
+        for (File dataFile : dataFiles) {
+            ImagePlus imp = new ImagePlus(dataFile.getAbsolutePath());
+            ImageProcessor ip = imp.getProcessor();
+            imgStack.addSlice(ip);
+        }
+
         //initialise lifetimeImage float array
         float[][] lifetimeImg = new float[xRes][yRes];
 
-        //looping over each pixel i.e. xRes*yRes
-        //currently it looks like this code will take 728 days(? did i calculate that correctly. update: No. its 17h, see below)
-        //to run 25 datapoints image resolution of 1024 by 1024
-        //what should be done here?
-        //basis of calculation was that one x dimension worth of line took
-        //1578032802895 - 1578032742287 = 60608 ms = 60.6s to run
-        //there are 1024 lines, i.e. 1024*60.6s = 62054.4s = 1034.24mins = 17.23h
-        
-        System.out.println("Timestamp: " + System.currentTimeMillis());
-        for (int x = 0; x < xRes; x++) {
-            System.out.println("Timestamp: " + System.currentTimeMillis());
+        //METHOD 3 - 
+        //21.404 seconds for 28*24 resoln image i.e. 672 pixels
+        //for 1024 * 1024 res i.e. 1048576 - 33398.3939 s i.e. 556.639898 mins i.e. 9.2773h
+        System.out.println(
+                "Begin loop - Timestamp: " + System.currentTimeMillis());
+        for (int x = 0;
+                x < xRes;
+                x++) {
             for (int y = 0; y < yRes; y++) {
-                System.out.print("XY: " + ((x * yRes) + y) + "Data Point: ");
-                //new ydata array
-                double[] ydata = new double[dataPoints];
-                //loop over all data points
-                for (int p = 0; p < yDataArrayList.size(); p++) {
-                    float[][] get = yDataArrayList.get(p);
-                    ydata[p] = (double) get[x][y];
-                    System.out.print(p + " ");
-                }
-                System.out.println(" ");
-                //carry out fit for xdata and ydata and save fit result
+                float[] yArray = new float[1 * 1 * dataPoints];
+                imgStack.getVoxels(x, y, 0, 1, 1, dataPoints, yArray);
+//                System.out.println("x: " + x + " y:" + y + " float array: " + Arrays.toString(yArray));
+                double[] ydata = new double[yArray.length];
+                IntStream.range(0, yArray.length).forEach(index -> ydata[index] = yArray[index]);
                 float result = (float) this.lifetimeFit(xdata, ydata);
                 lifetimeImg[x][y] = result;
             }
         }
-        System.out.println("Timestamp: " + System.currentTimeMillis());
+
+        System.out.println(
+                "End - Timestamp: " + System.currentTimeMillis());
+        //System.out.println("lifetimeImg array: " + Arrays.deepToString(lifetimeImg));
         //image creation
         ImageProcessor ltIP = new FloatProcessor(xRes, yRes);
+
         ltIP.setFloatArray(lifetimeImg);
         ImagePlus liIMP = new ImagePlus("Lifetime image", ltIP);
+
         liIMP.show();
+
+        new FileSaver(liIMP)
+                .saveAsTiff(dir.getParent() + File.separator + liIMP.getTitle() + ".tif");
+        System.out.print(
+                "Button click completed.");
+
+//        // METHOD 2 - 
+//        //read voxel value
+//        System.out.println("Begin loop - Timestamp: " + System.currentTimeMillis());
+//        for (int x = 0; x < xRes; x++) {
+//            System.out.println(x + "New x line - Timestamp: " + System.currentTimeMillis());
+//            for (int y = 0; y < yRes; y++) {
+////                System.out.println(y + "New y line - Timestamp: " + System.currentTimeMillis());
+//                double[] ydata = new double[dataPoints];
+//                for (int z = 0; z < dataPoints; z++) {
+//                    double voxel = imgStack.getVoxel(x, y, z);
+//                    ydata[z] = voxel;
+//                }
+//                float result = (float) this.lifetimeFit(xdata, ydata);
+//                lifetimeImg[x][y] = result;
+//            }
+//        }
+//
+//        System.out.println("End - Timestamp: " + System.currentTimeMillis());
+//        //image creation
+//        ImageProcessor ltIP = new FloatProcessor(xRes, yRes);
+//        ltIP.setFloatArray(lifetimeImg);
+//        ImagePlus liIMP = new ImagePlus("Lifetime image", ltIP);
+//        liIMP.show();
+//        // METHOD 1 - 
+//        //read pixel intensity values and store in an arraylist
+//        ArrayList<float[][]> yDataArrayList = new ArrayList<>();
+//        for (File dataFile : dataFiles) {
+//            ImagePlus ip = new ImagePlus(dataFile.getAbsolutePath());
+//            ImageProcessor processor = ip.getProcessor();
+//            float[][] floatArray = processor.getFloatArray();
+//            yDataArrayList.add(floatArray);
+//        }
+//
+//        //fitting
+//        //create xdata
+////        double[] xdata = new double[dataPoints];
+//        double[] xdata = {0,
+//            33.33333,
+//            66.66667,
+//            100,
+//            133.33333,
+//            166.66667,
+//            200,
+//            233.33333,
+//            266.66667,
+//            300,
+//            333.33333,
+//            400,
+//            466.66667,
+//            533.33333,
+//            600,
+//            666.66667,
+//            800,
+//            933.33333,
+//            1066.66667,
+//            1200,
+//            1333.33333,
+//            1666.66667,
+//            2000,
+//            2666.66667,
+//            3333.33333};
+//        //initialise lifetimeImage float array
+//        float[][] lifetimeImg = new float[xRes][yRes];
+//
+//        //looping over each pixel i.e. xRes*yRes
+//        //currently it looks like this code will take 728 days(? did i calculate that correctly. update: No. its 17h, see below)
+//        //to run 25 datapoints image resolution of 1024 by 1024
+//        //what should be done here?
+//        //basis of calculation was that one x dimension worth of line took
+//        //1578032802895 - 1578032742287 = 60608 ms = 60.6s to run
+//        //there are 1024 lines, i.e. 1024*60.6s = 62054.4s = 1034.24mins = 17.23h
+//        
+//        System.out.println("Timestamp: " + System.currentTimeMillis());
+//        for (int x = 0; x < xRes; x++) {
+//            System.out.println("Timestamp: " + System.currentTimeMillis());
+//            for (int y = 0; y < yRes; y++) {
+//                System.out.print("XY: " + ((x * yRes) + y) + "Data Point: ");
+//                //new ydata array
+//                double[] ydata = new double[dataPoints];
+//                //loop over all data points
+//                for (int p = 0; p < yDataArrayList.size(); p++) {
+//                    float[][] get = yDataArrayList.get(p);
+//                    ydata[p] = (double) get[x][y];
+//                    System.out.print(p + " ");
+//                }
+//                System.out.println(" ");
+//                //carry out fit for xdata and ydata and save fit result
+//                float result = (float) this.lifetimeFit(xdata, ydata);
+//                lifetimeImg[x][y] = result;
+//            }
+//        }
+//        System.out.println("Timestamp: " + System.currentTimeMillis());
+//        //image creation
+//        ImageProcessor ltIP = new FloatProcessor(xRes, yRes);
+//        ltIP.setFloatArray(lifetimeImg);
+//        ImagePlus liIMP = new ImagePlus("Lifetime image", ltIP);
+//        liIMP.show();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public double lifetimeFit(double[] xdata, double[] ydata) {
@@ -342,7 +475,7 @@ public class lifetime extends javax.swing.JFrame {
         cf.doCustomFit(eq, initialParams, false); //custom-fit
         double[] para = cf.getParams(); //get fit parameters
         double lifetime = 1 / para[1]; //calculate lifetime
-        System.out.println(Arrays.toString(para)); //print fit parameters        
+//      System.out.println(Arrays.toString(para)); //print fit parameters        
         System.out.println("Lifetime = " + lifetime + " ps");
         return lifetime;
     }
@@ -361,16 +494,24 @@ public class lifetime extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(lifetime.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(lifetime.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(lifetime.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(lifetime.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(lifetime.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(lifetime.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(lifetime.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(lifetime.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
