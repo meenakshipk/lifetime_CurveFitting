@@ -13,6 +13,7 @@ import ij.io.FileSaver;
 import ij.measure.CurveFitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import java.awt.Image;
 import java.awt.List;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +26,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -70,6 +73,8 @@ public class lifetime extends javax.swing.JFrame {
         jTextFieldTimePoints = new javax.swing.JTextField();
         jProgressBar1 = new javax.swing.JProgressBar();
         jLabelProgressBar = new javax.swing.JLabel();
+        lifetimeImage = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,6 +116,8 @@ public class lifetime extends javax.swing.JFrame {
 
         jLabelProgressBar.setText("Progress Bar:");
 
+        jLabel8.setText("Output:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -146,39 +153,49 @@ public class lifetime extends javax.swing.JFrame {
                     .addComponent(jLabel6)
                     .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelProgressBar))
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lifetimeImage, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
+                .addGap(40, 40, 40))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jTextFieldXRes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextFieldYRes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldYRes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jTextFieldTimePoints, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabelProgressBar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButtonUploadFile)
-                .addGap(59, 59, 59))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(jTextFieldTimePoints, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelProgressBar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonUploadFile)
+                        .addGap(59, 59, 59))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lifetimeImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
 
         pack();
@@ -260,50 +277,76 @@ public class lifetime extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonUploadFileActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
-            private int dataPoints;
-            private int xRes;
-            private int yRes;
+        lifetimeImage.setIcon(null);
+        jLabelProgressBar.setText("Progress: 0 %");
+        jProgressBar1.setValue(0);
+        (new taskGenerateLifetimeImage()).execute();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
-            @Override
-            protected Void doInBackground() throws Exception {
-                dataPoints = Integer.parseInt(jTextFieldTimePoints.getText());
-                xRes = Integer.parseInt(jTextFieldXRes.getText());
-                yRes = Integer.parseInt(jTextFieldYRes.getText());
+    private float lifetimeFit(double[] xdata, double[] ydata) {
+        //custom fit
+        String eq = "y = a*((1+(c*(1-exp(-b*x))))*(1 + (1-exp(-b*x))))";
+        CurveFitter cf = new CurveFitter(xdata, ydata); //select data and initialize curve fitter
+        double[] initialParams = new double[3]; //initialise parameters for user-fn fit 
+        initialParams[0] = 1;
+        initialParams[1] = 0.001;
+        initialParams[2] = 0.05;
+        cf.doCustomFit(eq, initialParams, false); //custom-fit
+        double[] para = cf.getParams(); //get fit parameters
+        double lifetime = Float.NaN;
+        if (para[1] >= 0) {
+            lifetime = 1 / para[1]; //calculate lifetime
+        }
+//      System.out.println(Arrays.toString(para)); //print fit parameters        
+//        System.out.println("Lifetime = " + lifetime + " ps");
+        return (float) lifetime;
+    }
 
-                //choose multiple files
-                JFileChooser Fc = new JFileChooser();
-                Fc.setMultiSelectionEnabled(true);
-                Fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                Fc.showOpenDialog(lifetime.this);
-                File[] dataFiles = Fc.getSelectedFiles();
-                File dir = Fc.getSelectedFile();
+    private class taskGenerateLifetimeImage extends SwingWorker<ImagePlus, Integer> {
 
-                if (dataPoints != dataFiles.length) {
-                    System.out.println("Error! No. of files selected does not match no. of dataPoints");
-                    dataFiles = null;
-                    return null;
-                }
+        private int dataPoints;
+        private int xRes;
+        private int yRes;
 
-                //create xdata
+        @Override
+        protected ImagePlus doInBackground() throws Exception {
+            dataPoints = Integer.parseInt(jTextFieldTimePoints.getText());
+            xRes = Integer.parseInt(jTextFieldXRes.getText());
+            yRes = Integer.parseInt(jTextFieldYRes.getText());
+
+            //choose multiple files
+            JFileChooser Fc = new JFileChooser();
+            Fc.setMultiSelectionEnabled(true);
+            Fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            Fc.showOpenDialog(lifetime.this);
+            File[] dataFiles = Fc.getSelectedFiles();
+            File dir = Fc.getSelectedFile();
+
+            if (dataPoints != dataFiles.length) {
+                System.out.println("Error! No. of files selected does not match no. of dataPoints");
+                dataFiles = null;
+                return null;
+            }
+
+            //create xdata
 //        double[] xdata = new double[dataPoints];
 //14 dp
-                double[] xdata = {
-                    171.6,
-                    204.6,
-                    270.6,
-                    336.6,
-                    402.6,
-                    435.6,
-                    468.6,
-                    534.6,
-                    600.6,
-                    732.6,
-                    798.6,
-                    1046.1,
-                    1293.6,
-                    1788.6
-                };
+            double[] xdata = {
+                171.6,
+                204.6,
+                270.6,
+                336.6,
+                402.6,
+                435.6,
+                468.6,
+                534.6,
+                600.6,
+                732.6,
+                798.6,
+                1046.1,
+                1293.6,
+                1788.6
+            };
 
 //        //27dp
 //        double[] xdata = {
@@ -335,80 +378,66 @@ public class lifetime extends javax.swing.JFrame {
 //            3000,
 //            3333.33333
 //        };
-                //create image stack out of selected files
-                ImageStack imgStack = new ImageStack(xRes, yRes);
-                for (File dataFile : dataFiles) {
-                    ImagePlus imp = new ImagePlus(dataFile.getAbsolutePath());
-                    ImageProcessor ip = imp.getProcessor();
-                    imgStack.addSlice(ip);
-                }
-
-                //initialise lifetimeImage float array
-                float[][] lifetimeImg = new float[xRes][yRes];
-
-                //METHOD 3 - 
-                //21.404 seconds for 28*24 resoln image i.e. 672 pixels
-                //for 1024 * 1024 res i.e. 1048576 - 33398.3939 s i.e. 556.639898 mins i.e. 9.2773h
-                for (int y = 0; y < yRes; y++) {
-                    for (int x = 0; x < xRes; x++) {
-                        float[] yArray = new float[1 * 1 * dataPoints];
-                        imgStack.getVoxels(x, y, 0, 1, 1, dataPoints, yArray);
-//                System.out.println("x: " + x + " y:" + y + " float array: " + Arrays.toString(yArray));
-                        double[] ydata = new double[yArray.length];
-                        IntStream.range(0, yArray.length).forEach(index -> ydata[index] = yArray[index]);
-                        float result = lifetime.this.lifetimeFit(xdata, ydata);
-                        lifetimeImg[x][y] = result/100; //lifetime in ns
-                        publish((xRes * y) + x);
-                    }
-                }
-                //System.out.println("lifetimeImg array: " + Arrays.deepToString(lifetimeImg));
-                //image creation
-                ImageProcessor ltIP = new FloatProcessor(xRes, yRes);
-                ltIP.setFloatArray(lifetimeImg);
-                ImagePlus liIMP = new ImagePlus("Lifetime image", ltIP);
-                liIMP.show();
-                new FileSaver(liIMP).saveAsTiff(dir.getParent() + File.separator + liIMP.getTitle() + ".tif");
-                return null;
-            }
-
-            @Override
-            protected void process(java.util.List<Integer> chunks) {
-                int curValue = chunks.get(chunks.size() - 1);
-                int progressValue = curValue * 100 / (xRes * yRes);
-                lifetime.this.jLabelProgressBar.setText("Progress: " + progressValue + "%");
-                lifetime.this.jProgressBar1.setValue(progressValue);
-            }
-
-            @Override
-            protected void done() {
+            //create image stack out of selected files
+            ImageStack imgStack = new ImageStack(xRes, yRes);
+            for (File dataFile : dataFiles) {
+                ImagePlus imp = new ImagePlus(dataFile.getAbsolutePath());
+                ImageProcessor ip = imp.getProcessor();
                 try {
-                    jLabelProgressBar.setText("Progress Bar: Task Completed.");
+                    imgStack.addSlice(ip);
                 } catch (Exception e) {
-                System.out.println(e);
-                    jLabelProgressBar.setText("Progress Bar: Error.");                
+                    System.out.println("Error in creating image stack: " + e);
                 }
             }
-        };
-        worker.execute();
-    }//GEN-LAST:event_jButton1ActionPerformed
 
-    public float lifetimeFit(double[] xdata, double[] ydata) {
-        //custom fit
-        String eq = "y = a*((1+(c*(1-exp(-b*x))))*(1 + (1-exp(-b*x))))";
-        CurveFitter cf = new CurveFitter(xdata, ydata); //select data and initialize curve fitter
-        double[] initialParams = new double[3]; //initialise parameters for user-fn fit 
-        initialParams[0] = 1;
-        initialParams[1] = 0.001;
-        initialParams[2] = 0.05;
-        cf.doCustomFit(eq, initialParams, false); //custom-fit
-        double[] para = cf.getParams(); //get fit parameters
-        double lifetime = Float.NaN;
-        if(para[1] >= 0){
-         lifetime = 1 / para[1]; //calculate lifetime
+            //initialise lifetimeImage float array
+            float[][] lifetimeImg = new float[xRes][yRes];
+
+            //METHOD 3 - 
+            //21.404 seconds for 28*24 resoln image i.e. 672 pixels
+            //for 1024 * 1024 res i.e. 1048576 - 33398.3939 s i.e. 556.639898 mins i.e. 9.2773h
+            for (int y = 0; y < yRes; y++) {
+                for (int x = 0; x < xRes; x++) {
+                    float[] yArray = new float[1 * 1 * dataPoints];
+                    imgStack.getVoxels(x, y, 0, 1, 1, dataPoints, yArray);
+//                System.out.println("x: " + x + " y:" + y + " float array: " + Arrays.toString(yArray));
+                    double[] ydata = new double[yArray.length];
+                    IntStream.range(0, yArray.length).forEach(index -> ydata[index] = yArray[index]);
+                    float result = lifetime.this.lifetimeFit(xdata, ydata);
+                    lifetimeImg[x][y] = result / 100; //lifetime in ns
+                    publish((xRes * y) + x);
+                }
+            }
+            //System.out.println("lifetimeImg array: " + Arrays.deepToString(lifetimeImg));
+            //image creation
+            ImageProcessor ltIP = new FloatProcessor(xRes, yRes);
+            ltIP.setFloatArray(lifetimeImg);
+            ImagePlus liIMP = new ImagePlus("Lifetime image", ltIP);
+            liIMP.show();
+            new FileSaver(liIMP).saveAsTiff(dir.getParent() + File.separator + liIMP.getTitle() + ".tif");
+            return liIMP;
         }
-//      System.out.println(Arrays.toString(para)); //print fit parameters        
-//        System.out.println("Lifetime = " + lifetime + " ps");
-        return (float)lifetime;
+
+        @Override
+        protected void process(java.util.List<Integer> chunks) {
+            int curValue = chunks.get(chunks.size() - 1);
+            int progressValue = curValue * 100 / (xRes * yRes);
+            lifetime.this.jLabelProgressBar.setText("Progress: " + progressValue + "%");
+            lifetime.this.jProgressBar1.setValue(progressValue);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                jLabelProgressBar.setText("Progress Bar: Task Completed.");
+                Image image = get().getImage(); //liIMP
+                image = image.getScaledInstance(lifetimeImage.getWidth(), lifetimeImage.getHeight(), Image.SCALE_SMOOTH);
+                lifetimeImage.setIcon(new ImageIcon(image));
+            } catch (Exception e) {
+                System.out.println(e);
+                jLabelProgressBar.setText("Progress Bar: Error.");
+            }
+        }
     }
 
     /**
@@ -465,11 +494,13 @@ public class lifetime extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabelProgressBar;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextFieldTimePoints;
     private javax.swing.JTextField jTextFieldXRes;
     private javax.swing.JTextField jTextFieldYRes;
+    private javax.swing.JLabel lifetimeImage;
     // End of variables declaration//GEN-END:variables
 }
