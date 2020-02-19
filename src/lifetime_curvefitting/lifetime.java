@@ -13,6 +13,7 @@ import ij.io.FileSaver;
 import ij.measure.CurveFitter;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.List;
 import java.io.File;
@@ -41,6 +42,8 @@ import org.apache.commons.lang3.ArrayUtils;
  * fitting on each pixel to obtain the lifetime image. *
  */
 public class lifetime extends javax.swing.JFrame {
+
+    private Component frame;
 
     /**
      * Creates new form lifetime
@@ -278,8 +281,9 @@ public class lifetime extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         lifetimeImage.setIcon(null);
-        jLabelProgressBar.setText("Progress: 0 %");
+        jLabelProgressBar.setText("Progress:");
         jProgressBar1.setValue(0);
+        jProgressBar1.setStringPainted(true);
         (new taskGenerateLifetimeImage()).execute();
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -318,10 +322,12 @@ public class lifetime extends javax.swing.JFrame {
             JFileChooser Fc = new JFileChooser();
             Fc.setMultiSelectionEnabled(true);
             Fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            Fc.showOpenDialog(lifetime.this);
+            int status = Fc.showOpenDialog(lifetime.this);
+            if (status == JFileChooser.CANCEL_OPTION) {
+                return null;
+            }
             File[] dataFiles = Fc.getSelectedFiles();
             File dir = Fc.getSelectedFile();
-
             if (dataPoints != dataFiles.length) {
                 System.out.println("Error! No. of files selected does not match no. of dataPoints");
                 dataFiles = null;
@@ -386,10 +392,11 @@ public class lifetime extends javax.swing.JFrame {
                 try {
                     imgStack.addSlice(ip);
                 } catch (Exception e) {
-                    System.out.println("Error in creating image stack: " + e);
+                    System.out.println("imgStack.addSlice() error: " + e);
+                    JOptionPane.showMessageDialog(frame, "Error in creating image stack.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
                 }
             }
-
             //initialise lifetimeImage float array
             float[][] lifetimeImg = new float[xRes][yRes];
 
@@ -422,7 +429,7 @@ public class lifetime extends javax.swing.JFrame {
         protected void process(java.util.List<Integer> chunks) {
             int curValue = chunks.get(chunks.size() - 1);
             int progressValue = curValue * 100 / (xRes * yRes);
-            lifetime.this.jLabelProgressBar.setText("Progress: " + progressValue + "%");
+//            lifetime.this.jLabelProgressBar.setText("Progress: [Insert custom message here]");
             lifetime.this.jProgressBar1.setValue(progressValue);
         }
 
@@ -435,7 +442,7 @@ public class lifetime extends javax.swing.JFrame {
                 lifetimeImage.setIcon(new ImageIcon(image));
             } catch (Exception e) {
                 System.out.println(e);
-                jLabelProgressBar.setText("Progress Bar: Error.");
+                jLabelProgressBar.setText("Progress Bar:");
             }
         }
     }
