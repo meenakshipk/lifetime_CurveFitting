@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
@@ -436,13 +437,15 @@ public class lifetime extends javax.swing.JFrame {
         @Override
         protected void done() {
             try {
-                jLabelProgressBar.setText("Progress Bar: Task Completed.");
-                Image image = get().getImage(); //liIMP
-                image = image.getScaledInstance(lifetimeImage.getWidth(), lifetimeImage.getHeight(), Image.SCALE_SMOOTH);
-                lifetimeImage.setIcon(new ImageIcon(image));
+                Image image = get().getImage();
+                if (image != null) {
+                    jLabelProgressBar.setText("Progress Bar: Task Completed.");
+                    image = image.getScaledInstance(lifetimeImage.getWidth(), lifetimeImage.getHeight(), Image.SCALE_SMOOTH);
+                    lifetimeImage.setIcon(new ImageIcon(image));
+                }
             } catch (Exception e) {
                 System.out.println(e);
-                jLabelProgressBar.setText("Progress Bar:");
+                jLabelProgressBar.setText("Progress Bar: Error.");
             }
         }
     }
